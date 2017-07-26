@@ -1,0 +1,84 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #151515;
+}
+
+canvas {
+    display: block;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow:scroll;
+}
+
+.wrapper {
+    width: 1000px;
+    margin: 0 auto;  
+    margin-top: 2em;
+}
+
+#instructions {
+    float: left;
+    font-family: sans-serif;
+    color: #757575;
+}
+#info{
+    float:right;
+}
+#mute{
+    margin-left:5em;
+}
+
+#score {
+    color: white;
+    font-size: 2em;
+    margin: 2em;
+}
+#round{
+    color: white;
+    font-size: 2em;
+    margin: 2em
+}
+.key {
+    color: #aaffdd;
+}
+
+#game-over, #game-over-overlay, #new-round, #new-round-overlay, #start-game, #start-game-overlay {
+    margin: auto;
+    width: 1200px;
+    height: 600px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: none;
+}
+
+#start-game, #start-game-overlay{
+    display: block;
+}
+#game-over-overlay , #new-round-overlay, #start-game-overlay{
+    background-color: black;
+    opacity: .5;
+}
+
+#game-over, #new-round, #start-game {
+    height: 200px;
+    text-align: center;
+    color: white;
+}
+
+#game-over h1,  #new-round h1, #start-game h1 {
+    font-size: 3em;
+    font-family: sans-serif;
+}
+
+#game-over button,  #new-round button, #start-game button{
+    font-size: 1.5em;
+}

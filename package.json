@@ -1,0 +1,23 @@
+{
+  "name": "mega-space-invaders",
+  "version": "0.1.0",
+  "description": "That's the superest clone of the amazing game",
+  "main": "/js/newApp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Diroro/TV.git"
+  },
+  "author": "Dmitry Rogach",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Diroro/TV/issues"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^2.6.1",
+    "webpack": "^2.4.1"
+  }
+}

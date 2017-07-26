@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Mega Space Invaders</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <audio id='shot-sound'>
+        <source src="sounds/shot.mp3" type="audio/mp3">
+    </audio>
+
+    <div id="start-game-overlay">
+    </div>
+    <div id="start-game">
+        <h1>Welcome to the new Mega Space Invaders!</h1>
+        <button id="start-game-button">Let's start.</button>
+    </div>
+
+    <div id="new-round-overlay">
+    </div>
+    <div id="new-round">
+        <h1>Congratulations! Round is completed.</h1>
+
+        <button id="new-round-button">Start New Round</button>
+    </div>
+
+    <div id="game-over-overlay">
+    </div>
+    <div id="game-over">
+        <h1>GAME OVER</h1>
+        <button id="play-again-button">Play Again</button>
+    </div>
+
+    <div class="wrapper">
+        <div id="instructions">
+            <div>
+                move with <span class="key">arrows</span> or <span class="key">AD</span> <input id='mute' type="checkbox">                mute
+            </div>
+            <div>
+                shoot with <span class="key">SPACE</span>
+            </div>
+        </div>
+        <div id="info">
+            <span id="round"></span><span id="score"></span>
+        </div>
+    </div>
+    <script type="text/javascript" src="build.js"></script>
+</body>
+
+</html>
