@@ -252,10 +252,12 @@ var Game = function () {
     this.main = function () {
         var now = Date.now();
         var dt = (now - self.lastTime) / 1000.0;
+        if (dt < 100) {
+            self.update(dt);
+            self.render();
+            self.lastTime = now;
+        }
 
-        self.update(dt);
-        self.render();
-        self.lastTime = now;
         requestAnimFrame(self.main);
     }
 
@@ -327,16 +329,22 @@ Game.prototype = {
 
         // moving down after edge
         if (!this.isGameOver && this.enemies.length > 0) {
-            if (getTheRightmost(this.enemies) > (this.canvas.width - this.enemies[0].sprite.size[0] - 5)) {
+
+            var dxRight = getTheRightmost(this.enemies)-(this.canvas.width - this.enemies[0].sprite.size[0] - 15);
+            var dxLeft = 15 - getTheLeftmost(this.enemies);
+
+            if (dxRight>0) {
                 for (var i = 0; i < this.enemies.length; i++) {
                     this.enemies[i].pos[1] += 30;
+                    this.enemies[i].pos[0] -=dxRight;
                 }
 
                 this.enemySpeed = -Math.abs(this.enemySpeed);
 
-            } else if (getTheLeftmost(this.enemies) < 15) {
+            } else if (dxLeft>0) {
                 for (var i = 0; i < this.enemies.length; i++) {
                     this.enemies[i].pos[1] += 30;
+                    this.enemies[i].pos[0] +=dxLeft;
                 }
                 this.enemySpeed = Math.abs(this.enemySpeed);
 
