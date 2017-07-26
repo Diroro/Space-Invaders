@@ -77,18 +77,29 @@ var Game = function () {
         self.terrainPattern = self.ctx.createPattern(resources.get('img/terrain.png'), 'repeat');
         self.shotSound = document.getElementById('shot-sound');
         self.shotSound.volume = 1;
-        document.getElementById('play-again-button').addEventListener('click', function () {
-            self.reset();   //play again after defeat
-        });
+        var playAgain = document.getElementById('play-again-button');
+        var mute = document.getElementById('mute');
+        var newRoundBtn = document.getElementById('new-round-button');
 
-        document.getElementById('mute').addEventListener('mousedown', function (e) {
-            self.isMuted = !e.target.checked;
-            e.preventDefault();
-        });
 
-        document.getElementById('new-round-button').addEventListener('click', function () {
-            self.startNewRound();   //continue playing with the new round
-        });
+        if (playAgain) {
+            playAgain.addEventListener('click', function () {
+                self.reset();   //play again after defeat
+            });
+        }
+        if (mute) {
+            mute.addEventListener('mousedown', function (e) {
+                self.isMuted = !e.target.checked;
+                e.preventDefault();
+            });
+        }
+        if (newRoundBtn) {
+            newRoundBtn.addEventListener('click', function () {
+                self.startNewRound();   //continue playing with the new round
+            });
+        }
+
+
 
         document.getElementById('start-game-button').addEventListener('click', function () {
             document.getElementById('start-game').style.display = 'none';
@@ -139,7 +150,7 @@ Game.prototype = {
 
             } else if (getTheLeftmost(this.enemies) < 15) {
                 for (var i = 0; i < this.enemies.length; i++) {
-                    this.enemies[i].pos[1] += 30;   
+                    this.enemies[i].pos[1] += 30;
                 }
                 this.enemySpeed = Math.abs(this.enemySpeed);
 
@@ -227,7 +238,7 @@ Game.prototype = {
     render: function () {
         this.ctx.fillStyle = this.terrainPattern;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-     
+
         if (!this.isGameOver && !this.isRoundCompleted) {
             renderEntity(this.ctx, this.player);
             renderEntities(this.ctx, this.bullets);
