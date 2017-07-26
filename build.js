@@ -184,16 +184,13 @@ module.exports = resources;
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
 
-// ; (function () {
 
 var Resources = __webpack_require__(1);
 var Input = __webpack_require__(0);
 var resources = new Resources();
 var input = new Input();
 
-// var Sprite = require('./sprite');
 var requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -204,43 +201,44 @@ var requestAnimFrame = (function () {
             window.setTimeout(callback, 1000 / 60);
         };
 })();
-// var resources = new Resources();
+
 
 var Game = function () {
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
-    this.canvas.height = 800;
-    this.canvas.width = 1300;
+    this.canvas.height = 600;
+    this.canvas.width = 1200;
     document.body.appendChild(this.canvas);
-    // var gameSize = { x: canvas.width, y: canvas.height };
 
+    this.terrainPattern;
+    this.shotSound;
 
     this.lastTime;
-
-
+    this.gameTime = 0;
+    this.isMuted = false;
 
     this.bullets = [];
     this.enemies = [];
     this.explosions = [];
+
     this.lastFire = Date.now();
-    this.gameTime = 0;
+
+
     this.isGameOver;
-    this.terrainPattern;
-    this.isMuted = false;
     this.isNewRound = true;
     this.isRoundCompleted = false;
+
     this.round = 1;
     this.score = 0;
 
     this.scoreEl = document.getElementById('score');
 
-    this.shotSound;
     this.def = {
         playerSpeed: 500,
         bulletSpeed: 1000,
         enemySpeed: 100,
-        difficult: 2,
-        bulletsPerSec: 10
+        difficult: 1,
+        bulletsPerSec: 3
     }
 
     this.playerSpeed;
@@ -250,6 +248,7 @@ var Game = function () {
     this.bulletsPerSec = this.def.bulletsPerSec;
     var self = this;
     this.player = new Player(this.playerSpeed, [50, 50]);
+
     this.main = function () {
         var now = Date.now();
         var dt = (now - self.lastTime) / 1000.0;
@@ -264,28 +263,39 @@ var Game = function () {
         self.terrainPattern = self.ctx.createPattern(resources.get('img/terrain.png'), 'repeat');
         self.shotSound = document.getElementById('shot-sound');
         self.shotSound.volume = 1;
-        document.getElementById('play-again').addEventListener('click', function () {
-            self.reset();   //play again after defeat
-        });
+        var playAgain = document.getElementById('play-again-button');
+        var mute = document.getElementById('mute');
+        var newRoundBtn = document.getElementById('new-round-button');
 
-        document.getElementById('mute').addEventListener('mousedown', function (e) {
-            self.isMuted = !e.target.checked;
-            e.preventDefault();
-        });
 
-        document.getElementById('new-round-button').addEventListener('click', function () {
-            self.startNewRound();   //continue playing with the new round
-        });
+        if (playAgain) {
+            playAgain.addEventListener('click', function () {
+                self.reset();   //play again after defeat
+            });
+        }
+        if (mute) {
+            mute.addEventListener('mousedown', function (e) {
+                self.isMuted = !e.target.checked;
+                e.preventDefault();
+            });
+        }
+        if (newRoundBtn) {
+            newRoundBtn.addEventListener('click', function () {
+                self.startNewRound();   //continue playing with the new round
+            });
+        }
 
-        document.getElementById('start-game').addEventListener('click', function () {
+
+
+        document.getElementById('start-game-button').addEventListener('click', function () {
             document.getElementById('start-game').style.display = 'none';
             document.getElementById('start-game-overlay').style.display = 'none';
+            self.reset();
+            self.lastTime = Date.now();
             self.main();
-
         });
 
-        self.reset();
-        self.lastTime = Date.now();
+
     }
     this.init();
 }
@@ -295,15 +305,8 @@ Game.prototype = {
         this.gameTime += dt;
         this.handleInput(dt);
         this.updateEntities(dt);
-
-        // if (this.isNewRound) {
-        //     console.log('NEW ROUND');
-        //     addEnemies(this.enemySpeed);
-        //     this.isNewRound = false;
-        // }
         this.checkCollisions();
         this.scoreEl.innerHTML = 'Score: ' + this.score;
-
     },
 
     updateEntities: function (dt) {
@@ -321,19 +324,19 @@ Game.prototype = {
         for (var i = 0; i < this.enemies.length; i++) {
             this.enemies[i].update(dt, this.enemySpeed);
         }
+
+        // moving down after edge
         if (!this.isGameOver && this.enemies.length > 0) {
             if (getTheRightmost(this.enemies) > (this.canvas.width - this.enemies[0].sprite.size[0] - 5)) {
                 for (var i = 0; i < this.enemies.length; i++) {
                     this.enemies[i].pos[1] += 30;
-                    // moving down after edge
                 }
 
                 this.enemySpeed = -Math.abs(this.enemySpeed);
 
             } else if (getTheLeftmost(this.enemies) < 15) {
                 for (var i = 0; i < this.enemies.length; i++) {
-                    this.enemies[i].pos[1] += 30;   // moving down after edge
-
+                    this.enemies[i].pos[1] += 30;
                 }
                 this.enemySpeed = Math.abs(this.enemySpeed);
 
@@ -421,14 +424,12 @@ Game.prototype = {
     render: function () {
         this.ctx.fillStyle = this.terrainPattern;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        // render the player if the game isn't over
-        if (!this.isGameOver && !this.isRoundCompleted) {
 
+        if (!this.isGameOver && !this.isRoundCompleted) {
             renderEntity(this.ctx, this.player);
             renderEntities(this.ctx, this.bullets);
             renderEntities(this.ctx, this.enemies);
             renderEntities(this.ctx, this.explosions);
-            //   console.log('Renderrr!');
         }
     },
 
@@ -444,6 +445,7 @@ Game.prototype = {
         document.getElementById('new-round').style.display = 'block';
         document.getElementById('new-round-overlay').style.display = 'block';
         this.score += 1000;
+        this.canvas.style.display = 'none';
     },
     startNewRound: function () {
 
@@ -456,13 +458,10 @@ Game.prototype = {
         this.isRoundCompleted = false;
         document.getElementById('round').innerHTML = 'Round ' + this.round; // into var
 
-        // this.enemies = addEnemies(this.enemySpeed);
-
-
         console.log('Starting new round');
     },
     resetEveryRound: function () {
-
+        this.canvas.style.display = 'block';
         this.enemies = [];
         this.bullets = [];
         this.player.pos = [(this.canvas.width - this.player.sprite.size[0]) / 2, this.canvas.height - this.player.sprite.size[1] - 5];
@@ -474,7 +473,7 @@ Game.prototype = {
         document.getElementById('game-over-overlay').style.display = 'none';
         this.isGameOver = false;
         this.round = 1;
-        this.playerSpeed = this.def.playerSpeed;
+        this.playerSpeed = this.def.playerSpeed;  // in case if we will want to add some bonuses
         this.bulletSpeed = this.def.bulletSpeed;
         this.enemySpeed = this.def.enemySpeed;
         this.difficult = this.def.difficult;
@@ -483,7 +482,6 @@ Game.prototype = {
         this.resetEveryRound();
         this.enemies = addEnemies(this.enemySpeed);
         document.getElementById('round').innerHTML = 'Round ' + this.round;
-        // player.pos = [(canvas.width - player.sprite.size )/2, canvas.height - 5];
         console.log('Starting new game');
     },
 }
@@ -497,12 +495,11 @@ var Enemy = function (enemySpeed, pos) {
 
 Enemy.prototype = {
     update: function (dt, enemySpeed) {
-
         this.pos[0] += enemySpeed * dt;
         this.sprite.update(dt);
-        // this.enemySpeed=enemySpeed;
     }
 }
+
 var Explosion = function (pos) {
     this.pos = pos;
     this.sprite = new Sprite('img/sprites.png',
@@ -513,16 +510,6 @@ var Explosion = function (pos) {
         null,
         true)
 }
-var addEnemies = function (enemySpeed) {
-    var enemies = [];
-    for (var i = 0; i < 10; i++) {
-        for (var j = 0; j < 3; j++) {
-            enemies.push(
-                new Enemy(enemySpeed, [i * 86 + 25, j * 80 + 5]));
-        }
-    }
-    return enemies;
-}
 
 var Player = function (playerSpeed, pos) {
     this.sprite = new Sprite('img/sprites.png', [0, 0], [75, 56]);
@@ -530,13 +517,6 @@ var Player = function (playerSpeed, pos) {
     this.pos = pos;
 }
 
-Player.prototype = {
-    update: function () {
-
-    }
-}
-// check all the place what exactly in GAME object 
-// do any object need
 var Bullet = function (bulletSpeed, pos) {
     this.pos = pos;
     this.sprite = new Sprite('img/sprites.png', [0, 62], [7, 7])
@@ -545,15 +525,12 @@ var Bullet = function (bulletSpeed, pos) {
 
 Bullet.prototype = {
 
-
-
     update: function (dt) {
         this.pos[1] -= this.bulletSpeed * dt;
     }
 };
 
-
-function Sprite(url, pos, size, speed, frames, dir, once) {
+var Sprite = function (url, pos, size, speed, frames, dir, once) {
     this.pos = pos;
     this.size = size;
     this.speed = typeof speed === 'number' ? speed : 0;
@@ -564,46 +541,57 @@ function Sprite(url, pos, size, speed, frames, dir, once) {
     this.once = once;
 };
 
-Sprite.prototype.update = function (dt) {
-    this._index += this.speed * dt;
-}
+Sprite.prototype = {
 
-Sprite.prototype.render = function (ctx) {
-    var frame;
-    //     var Resources = require('./resources');
-    // var resources = new Resources();
-    if (this.speed > 0) {
-        var max = this.frames.length;
-        var idx = Math.floor(this._index);
-        frame = this.frames[idx % max];
+    update: function (dt) {
+        this._index += this.speed * dt;
+    },
+    render: function (ctx) {
+        var frame;
+        if (this.speed > 0) {
+            var max = this.frames.length;
+            var idx = Math.floor(this._index);
+            frame = this.frames[idx % max];
 
-        if (this.once && idx >= max) {
-            this.done = true;
-            return;
+            if (this.once && idx >= max) {
+                this.done = true;
+                return;
+            }
         }
-    }
-    else {
-        frame = 0;
-    }
+        else {
+            frame = 0;
+        }
 
 
-    var x = this.pos[0];
-    var y = this.pos[1];
+        var x = this.pos[0];
+        var y = this.pos[1];
 
-    if (this.dir == 'vertical') {
-        y += frame * this.size[1];
-    }
-    else {
-        x += frame * this.size[0];
-    }
+        if (this.dir == 'vertical') {
+            y += frame * this.size[1];
+        }
+        else {
+            x += frame * this.size[0];
+        }
 
-    ctx.drawImage(resources.get(this.url),
-        x, y,
-        this.size[0], this.size[1],
-        0, 0,
-        this.size[0], this.size[1]);
+        ctx.drawImage(resources.get(this.url),
+            x, y,
+            this.size[0], this.size[1],
+            0, 0,
+            this.size[0], this.size[1]);
+    }
 }
 //other functions
+
+var addEnemies = function (enemySpeed) {
+    var enemies = [];
+    for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 3; j++) {
+            enemies.push(
+                new Enemy(enemySpeed, [i * 86 + 25, j * 80 + 5]));
+        }
+    }
+    return enemies;
+}
 
 var collides = function (x, y, r, b, x2, y2, r2, b2) {
     return !(r <= x2 || x > r2 || b <= y2 || y > b2);
@@ -616,17 +604,13 @@ var boxCollides = function (pos, size, pos2, size2) {
         pos2[0] + size2[0], pos2[1] + size2[1]);
 }
 
-
-
 var renderEntity = function (ctx, entity) {
     ctx.save();
     ctx.translate(entity.pos[0], entity.pos[1]);
-    // var image = resources.get(entity.url);
-    // entity.sprite.render(ctx, image);
     entity.sprite.render(ctx);
-
     ctx.restore();
 }
+
 var renderEntities = function (ctx, list) {
     for (var i = 0; i < list.length; i++) {
         renderEntity(ctx, list[i]);
@@ -634,20 +618,16 @@ var renderEntities = function (ctx, list) {
 }
 
 var getTheLeftmost = function (enemies) {
-    // if (enemies) {
+
     var x = enemies[0].pos[0];
     for (var i = 1; i < enemies.length; i++) {
         var x1 = enemies[i].pos[0]
         if (x1 < x) { x = x1 };
     }
-
     return Math.floor(x);
-    // }
-
 }
 
 var getTheRightmost = function (enemies) {
-    // if (enemies) {
     var x = enemies[0].pos[0];
     for (var i = 1; i < enemies.length; i++) {
         var x1 = enemies[i].pos[0]
@@ -655,8 +635,9 @@ var getTheRightmost = function (enemies) {
     }
 
     return Math.floor(x);
-    // }
 }
+
+// Load resources and start the game
 
 window.addEventListener('load', function () {
 
@@ -669,8 +650,6 @@ window.addEventListener('load', function () {
     });
 
 });
-// })();
-
 
 /***/ })
 /******/ ]);
