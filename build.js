@@ -1,0 +1,676 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+;
+function input() {
+    var pressedKeys = {};
+
+    function setKey(event, status) {
+        var code = event.keyCode;
+        var key;
+
+        switch (code) {
+            case 32: key = 'SPACE'; break;
+            case 37: key = 'LEFT'; break;
+            // case 38: key = 'UP'; break;
+            case 39: key = 'RIGHT'; break;
+            // case 40: key = 'DOWN'; break;
+            default:
+                // convert ASCII codes to letters
+                key = String.fromCharCode(code);
+        }
+
+        pressedKeys[key] = status;
+    }
+
+    document.addEventListener('keydown', function (e) {
+        setKey(e, true);
+    });
+
+    document.addEventListener('keyup', function (e) {
+        setKey(e, false);
+    });
+
+    window.addEventListener('blur', function () {
+        pressedKeys = {};
+    });
+
+   this.isDown = function (key) {
+            return pressedKeys[key.toUpperCase()];
+        }
+    
+};
+
+module.exports = input;
+
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+function resources() {
+    var resourceCache = {};
+    var loading = [];
+    var readyCallbacks = [];
+
+    this.load = function (urlOrArr) {
+        if (urlOrArr instanceof Array) {
+            urlOrArr.forEach(function (url) {
+                _load(url);
+            });
+        }
+        else {
+            _load(urlOrArr);
+        }
+    }
+
+    function _load(url) {
+        if (resourceCache[url]) {
+            return resourceCache[url];
+        }
+        else {
+            var img = new Image();
+            img.onload = function () {
+                resourceCache[url] = img;
+
+                if (isReady()) {
+                    readyCallbacks.forEach(function (func) { func(); });
+                }
+            };
+            resourceCache[url] = false;
+            img.src = url;
+        }
+    }
+
+    this.get = function (url) {
+        return resourceCache[url];
+    }
+
+    var isReady = function() {
+        var ready = true;
+        for (var item in resourceCache) {
+            if (resourceCache.hasOwnProperty(item) && !resourceCache[item]) {
+                ready = false;
+            }
+        }
+        return ready;
+    }
+
+    this.onReady = function (func) {
+        readyCallbacks.push(func);
+    }
+
+    // window.resources = {
+    //     load: load,
+    //     get: get,
+    //     onReady: onReady,
+    //     isReady: isReady
+    // };
+}
+
+module.exports = resources;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+// ; (function () {
+
+var Resources = __webpack_require__(1);
+var Input = __webpack_require__(0);
+var resources = new Resources();
+var input = new Input();
+
+// var Sprite = require('./sprite');
+var requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
+// var resources = new Resources();
+
+var Game = function () {
+    this.canvas = document.createElement("canvas");
+    this.ctx = this.canvas.getContext("2d");
+    this.canvas.height = 800;
+    this.canvas.width = 1300;
+    document.body.appendChild(this.canvas);
+    // var gameSize = { x: canvas.width, y: canvas.height };
+
+
+    this.lastTime;
+
+
+
+    this.bullets = [];
+    this.enemies = [];
+    this.explosions = [];
+    this.lastFire = Date.now();
+    this.gameTime = 0;
+    this.isGameOver;
+    this.terrainPattern;
+    this.isMuted = false;
+    this.isNewRound = true;
+    this.isRoundCompleted = false;
+    this.round = 1;
+    this.score = 0;
+
+    this.scoreEl = document.getElementById('score');
+
+    this.shotSound;
+    this.def = {
+        playerSpeed: 500,
+        bulletSpeed: 1000,
+        enemySpeed: 100,
+        difficult: 2,
+        bulletsPerSec: 10
+    }
+
+    this.playerSpeed;
+    this.bulletSpeed;
+    this.enemySpeed;
+    this.difficult;
+    this.bulletsPerSec = this.def.bulletsPerSec;
+    var self = this;
+    this.player = new Player(this.playerSpeed, [50, 50]);
+    this.main = function () {
+        var now = Date.now();
+        var dt = (now - self.lastTime) / 1000.0;
+
+        self.update(dt);
+        self.render();
+        self.lastTime = now;
+        requestAnimFrame(self.main);
+    }
+
+    this.init = function () {
+        self.terrainPattern = self.ctx.createPattern(resources.get('img/terrain.png'), 'repeat');
+        self.shotSound = document.getElementById('shot-sound');
+        self.shotSound.volume = 1;
+        document.getElementById('play-again').addEventListener('click', function () {
+            self.reset();   //play again after defeat
+        });
+
+        document.getElementById('mute').addEventListener('mousedown', function (e) {
+            self.isMuted = !e.target.checked;
+            e.preventDefault();
+        });
+
+        document.getElementById('new-round-button').addEventListener('click', function () {
+            self.startNewRound();   //continue playing with the new round
+        });
+
+        document.getElementById('start-game').addEventListener('click', function () {
+            document.getElementById('start-game').style.display = 'none';
+            document.getElementById('start-game-overlay').style.display = 'none';
+            self.main();
+
+        });
+
+        self.reset();
+        self.lastTime = Date.now();
+    }
+    this.init();
+}
+
+Game.prototype = {
+    update: function (dt) {
+        this.gameTime += dt;
+        this.handleInput(dt);
+        this.updateEntities(dt);
+
+        // if (this.isNewRound) {
+        //     console.log('NEW ROUND');
+        //     addEnemies(this.enemySpeed);
+        //     this.isNewRound = false;
+        // }
+        this.checkCollisions();
+        this.scoreEl.innerHTML = 'Score: ' + this.score;
+
+    },
+
+    updateEntities: function (dt) {
+        this.player.sprite.update(dt);
+
+        //update Bullets
+        for (var i = 0; i < this.bullets.length; i++) {
+            this.bullets[i].update(dt);
+            if (this.bullets[i].pos[1] < 0) {
+                this.bullets.splice(i, 1);
+                i--;
+            }
+        }
+        //update all the enemies
+        for (var i = 0; i < this.enemies.length; i++) {
+            this.enemies[i].update(dt, this.enemySpeed);
+        }
+        if (!this.isGameOver && this.enemies.length > 0) {
+            if (getTheRightmost(this.enemies) > (this.canvas.width - this.enemies[0].sprite.size[0] - 5)) {
+                for (var i = 0; i < this.enemies.length; i++) {
+                    this.enemies[i].pos[1] += 30;
+                    // moving down after edge
+                }
+
+                this.enemySpeed = -Math.abs(this.enemySpeed);
+
+            } else if (getTheLeftmost(this.enemies) < 15) {
+                for (var i = 0; i < this.enemies.length; i++) {
+                    this.enemies[i].pos[1] += 30;   // moving down after edge
+
+                }
+                this.enemySpeed = Math.abs(this.enemySpeed);
+
+            };
+        }
+
+        for (var i = 0; i < this.explosions.length; i++) {
+            this.explosions[i].sprite.update(dt);
+
+            if (this.explosions[i].sprite.done) {
+                this.explosions.splice(i, 1);
+                i--;
+            }
+        }
+
+    },
+
+    handleInput: function (dt) {
+        if (input.isDown('LEFT') || input.isDown('a')) {
+            this.player.pos[0] -= this.playerSpeed * dt;
+        }
+
+        if (input.isDown('RIGHT') || input.isDown('d')) {
+            this.player.pos[0] += this.playerSpeed * dt;
+        }
+
+        if (input.isDown('SPACE') && !this.isGameOver && !this.isRoundCompleted &&
+            Date.now() - this.lastFire > Math.floor(1000 / this.bulletsPerSec)) {
+            var x = this.player.pos[0] + this.player.sprite.size[0] / 2 - 3;
+            var y = this.player.pos[1] - 1;
+
+            this.bullets.push(
+                new Bullet(this.bulletSpeed, [x, y])
+            );
+            if (!this.isMuted) {
+                this.shotSound.play();
+            }
+            this.lastFire = Date.now();
+        }
+
+    },
+    checkCollisions: function () {
+        this.checkPlayerBounds();
+        for (var i = 0; i < this.enemies.length; i++) {
+            var pos = this.enemies[i].pos;
+            var size = this.enemies[i].sprite.size;
+
+            for (var j = 0; j < this.bullets.length; j++) {
+                var pos2 = this.bullets[j].pos;
+                var size2 = this.bullets[j].sprite.size;
+
+                if (boxCollides(pos, size, pos2, size2)) {
+                    //remove the enemy
+                    this.enemies.splice(i, 1);
+                    i--;
+
+                    this.enemySpeed += this.enemySpeed < 0 ? -3 * this.difficult : 3 * this.difficult;
+                    this.score += 100;
+                    // add an explosion
+                    this.explosions.push(new Explosion(pos));
+
+
+                    //remove the bullet and stop the iteration
+                    this.bullets.splice(j, 1);
+                    if (this.enemies.length === 0) {
+                        this.endRound();
+                    }
+                    break;
+                }
+            }
+
+            if (boxCollides(pos, size, [0, this.player.pos[1] - 10], [this.canvas.width, this.player.sprite.size[1]])) {
+                this.gameOver();
+            }
+        }
+    },
+    checkPlayerBounds: function () {
+        if (this.player.pos[0] < 5) {
+            this.player.pos[0] = 5;
+        }
+        else if (this.player.pos[0] > (this.canvas.width - this.player.sprite.size[0] - 5)) {
+            this.player.pos[0] = this.canvas.width - this.player.sprite.size[0] - 5;
+        }
+    },
+    render: function () {
+        this.ctx.fillStyle = this.terrainPattern;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // render the player if the game isn't over
+        if (!this.isGameOver && !this.isRoundCompleted) {
+
+            renderEntity(this.ctx, this.player);
+            renderEntities(this.ctx, this.bullets);
+            renderEntities(this.ctx, this.enemies);
+            renderEntities(this.ctx, this.explosions);
+            //   console.log('Renderrr!');
+        }
+    },
+
+
+    gameOver: function () {
+        document.getElementById('game-over').style.display = "block";
+        document.getElementById('game-over-overlay').style.display = "block";
+        this.isGameOver = true;
+    },
+
+    endRound: function () {
+        this.isRoundCompleted = true;
+        document.getElementById('new-round').style.display = 'block';
+        document.getElementById('new-round-overlay').style.display = 'block';
+        this.score += 1000;
+    },
+    startNewRound: function () {
+
+        this.round += 1;
+        this.enemySpeed = this.def.enemySpeed + 20 * this.round;
+
+        document.getElementById('new-round').style.display = 'none';
+        document.getElementById('new-round-overlay').style.display = 'none';
+        this.resetEveryRound();
+        this.isRoundCompleted = false;
+        document.getElementById('round').innerHTML = 'Round ' + this.round; // into var
+
+        // this.enemies = addEnemies(this.enemySpeed);
+
+
+        console.log('Starting new round');
+    },
+    resetEveryRound: function () {
+
+        this.enemies = [];
+        this.bullets = [];
+        this.player.pos = [(this.canvas.width - this.player.sprite.size[0]) / 2, this.canvas.height - this.player.sprite.size[1] - 5];
+        this.isNewRound = true;
+        this.enemies = addEnemies(this.enemySpeed);
+    },
+    reset: function () {
+        document.getElementById('game-over').style.display = 'none';
+        document.getElementById('game-over-overlay').style.display = 'none';
+        this.isGameOver = false;
+        this.round = 1;
+        this.playerSpeed = this.def.playerSpeed;
+        this.bulletSpeed = this.def.bulletSpeed;
+        this.enemySpeed = this.def.enemySpeed;
+        this.difficult = this.def.difficult;
+        this.gameTime = 0;
+        this.score = 0;
+        this.resetEveryRound();
+        this.enemies = addEnemies(this.enemySpeed);
+        document.getElementById('round').innerHTML = 'Round ' + this.round;
+        // player.pos = [(canvas.width - player.sprite.size )/2, canvas.height - 5];
+        console.log('Starting new game');
+    },
+}
+
+var Enemy = function (enemySpeed, pos) {
+
+    this.sprite = new Sprite('img/sprites.png', [0, 75], [68, 48], 2, [0, 1])
+    this.enemySpeed = enemySpeed;
+    this.pos = pos;
+}
+
+Enemy.prototype = {
+    update: function (dt, enemySpeed) {
+
+        this.pos[0] += enemySpeed * dt;
+        this.sprite.update(dt);
+        // this.enemySpeed=enemySpeed;
+    }
+}
+var Explosion = function (pos) {
+    this.pos = pos;
+    this.sprite = new Sprite('img/sprites.png',
+        [0, 128],
+        [68, 68],
+        20,
+        [0, 1, 2],
+        null,
+        true)
+}
+var addEnemies = function (enemySpeed) {
+    var enemies = [];
+    for (var i = 0; i < 10; i++) {
+        for (var j = 0; j < 3; j++) {
+            enemies.push(
+                new Enemy(enemySpeed, [i * 86 + 25, j * 80 + 5]));
+        }
+    }
+    return enemies;
+}
+
+var Player = function (playerSpeed, pos) {
+    this.sprite = new Sprite('img/sprites.png', [0, 0], [75, 56]);
+    this.playerSpeed = playerSpeed;
+    this.pos = pos;
+}
+
+Player.prototype = {
+    update: function () {
+
+    }
+}
+// check all the place what exactly in GAME object 
+// do any object need
+var Bullet = function (bulletSpeed, pos) {
+    this.pos = pos;
+    this.sprite = new Sprite('img/sprites.png', [0, 62], [7, 7])
+    this.bulletSpeed = bulletSpeed;
+};
+
+Bullet.prototype = {
+
+
+
+    update: function (dt) {
+        this.pos[1] -= this.bulletSpeed * dt;
+    }
+};
+
+
+function Sprite(url, pos, size, speed, frames, dir, once) {
+    this.pos = pos;
+    this.size = size;
+    this.speed = typeof speed === 'number' ? speed : 0;
+    this.frames = frames;
+    this._index = 0;
+    this.url = url;
+    this.dir = dir || 'horizontal';
+    this.once = once;
+};
+
+Sprite.prototype.update = function (dt) {
+    this._index += this.speed * dt;
+}
+
+Sprite.prototype.render = function (ctx) {
+    var frame;
+    //     var Resources = require('./resources');
+    // var resources = new Resources();
+    if (this.speed > 0) {
+        var max = this.frames.length;
+        var idx = Math.floor(this._index);
+        frame = this.frames[idx % max];
+
+        if (this.once && idx >= max) {
+            this.done = true;
+            return;
+        }
+    }
+    else {
+        frame = 0;
+    }
+
+
+    var x = this.pos[0];
+    var y = this.pos[1];
+
+    if (this.dir == 'vertical') {
+        y += frame * this.size[1];
+    }
+    else {
+        x += frame * this.size[0];
+    }
+
+    ctx.drawImage(resources.get(this.url),
+        x, y,
+        this.size[0], this.size[1],
+        0, 0,
+        this.size[0], this.size[1]);
+}
+//other functions
+
+var collides = function (x, y, r, b, x2, y2, r2, b2) {
+    return !(r <= x2 || x > r2 || b <= y2 || y > b2);
+}
+
+var boxCollides = function (pos, size, pos2, size2) {
+    return collides(pos[0], pos[1],
+        pos[0] + size[0], pos[1] + size[1],
+        pos2[0], pos2[1],
+        pos2[0] + size2[0], pos2[1] + size2[1]);
+}
+
+
+
+var renderEntity = function (ctx, entity) {
+    ctx.save();
+    ctx.translate(entity.pos[0], entity.pos[1]);
+    // var image = resources.get(entity.url);
+    // entity.sprite.render(ctx, image);
+    entity.sprite.render(ctx);
+
+    ctx.restore();
+}
+var renderEntities = function (ctx, list) {
+    for (var i = 0; i < list.length; i++) {
+        renderEntity(ctx, list[i]);
+    }
+}
+
+var getTheLeftmost = function (enemies) {
+    // if (enemies) {
+    var x = enemies[0].pos[0];
+    for (var i = 1; i < enemies.length; i++) {
+        var x1 = enemies[i].pos[0]
+        if (x1 < x) { x = x1 };
+    }
+
+    return Math.floor(x);
+    // }
+
+}
+
+var getTheRightmost = function (enemies) {
+    // if (enemies) {
+    var x = enemies[0].pos[0];
+    for (var i = 1; i < enemies.length; i++) {
+        var x1 = enemies[i].pos[0]
+        if (x1 > x) { x = x1 };
+    }
+
+    return Math.floor(x);
+    // }
+}
+
+window.addEventListener('load', function () {
+
+    resources.load([
+        'img/sprites.png',
+        'img/terrain.png'
+    ]);
+    resources.onReady(function () {
+        var game = new Game();
+    });
+
+});
+// })();
+
+
+/***/ })
+/******/ ]);
