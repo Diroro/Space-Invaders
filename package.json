@@ -5,19 +5,22 @@
   "main": "/js/newApp.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack-dev-server"
+    "start": "webpack-dev-server --mode='development'"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Diroro/TV.git"
+    "url": "https://github.com/Diroro/Space-Invaders.git"
   },
   "author": "Dmitry Rogach",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Diroro/TV/issues"
+    "url": "https://github.com/Diroro/Space-Invaders/issues"
   },
   "devDependencies": {
-    "webpack-dev-server": "^2.6.1",
-    "webpack": "^2.4.1"
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
